@@ -22,7 +22,7 @@
 ### Configure
 Change in ```bin/update.sh``` file the next lines:
 #### GIT repository configure
-
+    #GIT_BRANCH="git-username"
     #GIT_USERNAME="git-username"
     #GIT_PASSWORD="git-password"
     #GIT_REPOSITORY="https://$GIT_USERNAME:$GIT_PASSWORD@github.com/:owner/:repo.git"

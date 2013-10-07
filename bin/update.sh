@@ -11,6 +11,7 @@ DATE=$(date +%d-%m-%Y_%H-%M-%S)
 # -------------------VARIABLES-----------------------------------------
 
 # -------------------TODO MODIFY-----------------------------------------
+#GIT_BRANCH="pull-branch"
 #GIT_USERNAME="git-username"
 #GIT_PASSWORD="git-password"
 #GIT_REPOSITORY="https://$GIT_USERNAME:$GIT_PASSWORD@github.com/:owner/:repo.git"
@@ -57,7 +58,8 @@ then
     rm -f $VHOST_DIR
     ln -s $VHOST_TMP $VHOST_DIR
     cd $VHOST_DIR
-    git checkout master
+    php -r "eval('?>'.file_get_contents('https://getcomposer.org/installer'));"
+    php composer.phar install
     # -------------- PASTE FIRST RUN COMMANDS---------------------------
 
 
@@ -88,7 +90,7 @@ else
     # -------------------BACKUP-----------------------------------------
 
     cd $VHOST_DIR
-    git pull
+    git pull origin $GIT_BRANCH
     git checkout -q $REV
     php apps/public/console doctrine:migration:migrate
     php apps/public/console cache:clear --env=prod
