@@ -89,7 +89,7 @@ else
 
     cd $VHOST_DIR
     git pull
-    git checkout $REV
+    git checkout -q $REV
     php apps/public/console doctrine:migration:migrate
     php apps/public/console cache:clear --env=prod
     php apps/admin/console cache:clear --env=prod
