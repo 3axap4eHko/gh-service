@@ -5,10 +5,10 @@
 	2. ssh2 php extension
 
 ### Structure
-
-    vhost - deployment directory (is not server document root)
-    backups - backup directory for store backups
-    update.sh - update script that will be called by hook
+    ..
+    \-backups - backup directory for store backups
+    \-vhost - deployment directory (is not server document root)
+    \-update.sh - update script that will be called by hook
 
 ### Installation
 #### On Debian:
@@ -35,4 +35,4 @@ Change in ```bin/update.sh``` file the next lines:
 
     Usage: update.sh [revision] [clean]
     revision - git commit revision
-    clean - clean install [0/1], "0" by default (optional)
+    clean - clean install [0/1] (optional, "0" by default)
