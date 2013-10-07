@@ -13,8 +13,20 @@
     sudo php5enmod ssh2 && \
     sudo apache2ctl graceful
 
+### Configure
+Change in ```bin/update.sh``` file  next lines
+#### GIT repository configure
+
+    #REPOSITORY="https://github.com/:owner/:repo.git"
+
 #### MySQL dump configure
 
-Change in ```bin/update.sh``` file line
-    #mysqldump -u[username] -p[password] [dbname] | gzip -c | cat>quidcycle.sql.$(date +%d-%m-%Y_%H-%M-%S).tar.gz
-strings [username] [password] and [dbname] to actual values
+    #DB_USERNAME=username
+    #DB_PASSWORD=username
+    #DB_NAME=dbname
+
+### Usage
+
+    Usage: update.sh [revision] [clean]
+    revision - git commit revision
+    clean - clean install [0/1], "0" by default (optional)
