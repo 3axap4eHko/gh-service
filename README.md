@@ -6,9 +6,9 @@
 
 ### Structure
     ..
-    \-backups - backup directory for store backups
-    \-vhost - deployment directory (is not server document root)
-    \-update.sh - update script that will be called by hook
+    /backups/ - backup directory for store backups
+    /vhost/ - deployment directory (is not server document root)
+    /update.sh - update script that will be called by hook
 
 ### Installation
 #### On Debian:
