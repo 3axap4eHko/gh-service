@@ -23,13 +23,15 @@
 Change in ```bin/update.sh``` file the next lines:
 #### GIT repository configure
 
-    #REPOSITORY="https://github.com/:owner/:repo.git"
+    #GIT_USERNAME="git-username"
+    #GIT_PASSWORD="git-password"
+    #GIT_REPOSITORY="https://$GIT_USERNAME:$GIT_PASSWORD@github.com/:owner/:repo.git"
 
 #### MySQL dump configure
 
-    #DB_USERNAME=username
-    #DB_PASSWORD=username
-    #DB_NAME=dbname
+    #DB_USERNAME="db-username"
+    #DB_PASSWORD="db-password"
+    #DB_NAME="db-name"
 
 ### Usage
 

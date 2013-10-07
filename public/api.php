@@ -26,7 +26,7 @@ if ($ssh->auth(SSH::AUTH_PASSWORD,['ssh-login', 'ssh-password']))
         case 'heads':
             switch($pointer)
             {
-                case 'dev':
+                case 'develop':
                     $ssh->exec('cd /var/www/dev && update.sh ' . $commit);
                     break;
                 case 'master':
