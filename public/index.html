@@ -1,0 +1,31 @@
+<html>
+<head>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.test').click(function(){
+                $.ajax({
+                    url:'/request.json',
+                    success: function(data)
+                    {
+                        $.ajax({
+                            url:'/api.php',
+                            type: 'post',
+                            data: {
+                                playload: JSON.stringify(data)
+                            },
+                            success: function(response)
+                            {
+                                console.log(response);
+                            }
+                        })
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<button class="test">TEST</button>
+</body>
+</html>
