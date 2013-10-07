@@ -4,6 +4,12 @@
 	1. PHP 5.4.4+
 	2. ssh2 php extension
 
+### Structure
+
+    vhost - deployment directory (is not server document root)
+    backups - backup directory for store backups
+    update.sh - update script that will be called by hook
+
 ### Installation
 #### On Debian:
 
@@ -14,7 +20,7 @@
     sudo apache2ctl graceful
 
 ### Configure
-Change in ```bin/update.sh``` file  next lines
+Change in ```bin/update.sh``` file the next lines:
 #### GIT repository configure
 
     #REPOSITORY="https://github.com/:owner/:repo.git"
