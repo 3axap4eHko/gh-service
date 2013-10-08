@@ -5,9 +5,13 @@
 cd $(dirname $0)
 CD=`pwd`
 REV="$1"
-BACKUP_DIR="backups"
-VHOST_DIR="$CD/vhost"
 DATE=$(date +%d-%m-%Y_%H-%M-%S)
+FAST_BACKUP_DIR="$CD/last-vhost-backup"
+BACKUP_DIR="$CD/backups"
+LOCAL_VHOST_DIR="vhost"
+VHOST_DIR="$CD/LOCAL_VHOST_DIR"
+REPO_DIR="$CD/repo"
+VHOST_TMP="$CD/vhost-$DATE"
 # -------------------VARIABLES-----------------------------------------
 
 # -------------------TODO MODIFY-----------------------------------------
@@ -18,6 +22,7 @@ DATE=$(date +%d-%m-%Y_%H-%M-%S)
 #DB_USERNAME="db-username"
 #DB_PASSWORD="db-password"
 #DB_NAME="db-name"
+#DB_HOST="localhost"
 # -------------------TODO MODIFY-----------------------------------------
 
 # -------------------VALIDATION-----------------------------------------
@@ -34,13 +39,6 @@ if [ -z $REV ];
 then
 # ----------------- FOR FIRST RUN -----------------------------
 
-    read -p "Are you sure you want recreate existing instance? [y/N]" -n 1 -r
-    if [[ ! $REPLY =~ ^[yY]$ ]];
-    then
-        echo cancel
-        exit 0
-    fi
-
 # -------------------VALIDATION-----------------------------------------
     if [ -z $GIT_REPOSITORY ];
     then
@@ -49,54 +47,96 @@ then
         exit 1
     fi
 # -------------------VALIDATION-----------------------------------------
-    if [ ! -d "$VHOST_DIR" ];
+
+    if [ -d $REPO_DIR ];
     then
+        echo 'Remove old repo directory'
+        rm -rf $REPO_DIR
+    fi
+    echo 'Create repo directory'
+    mkdir -p $REPO_DIR
+
+    if [ ! -d $BACKUP_DIR ];
+    then
+        echo 'Create backup directory'
         mkdir $BACKUP_DIR
     fi
-    VHOST_TMP="vhost-$DATE"
-    git clone $GIT_REPOSITORY $VHOST_TMP
-    rm -f $VHOST_DIR
-    ln -s $VHOST_TMP $VHOST_DIR
-    cd $VHOST_DIR
+
+
+    git clone $GIT_REPOSITORY $REPO_DIR
+    cd $REPO_DIR
+    git checkout $GIT_BRANCH
+    echo 'Install composer'
     php -r "eval('?>'.file_get_contents('https://getcomposer.org/installer'));"
     php composer.phar install
-    # -------------- PASTE FIRST RUN COMMANDS---------------------------
-
-
-    # -------------- PASTE FIRST RUN COMMANDS---------------------------
-    echo "Please configure project for first run!!!"
-
-# ----------------- FOR FIRST RUN -----------------------------
-
-else
-
-    if [ ! -d "$VHOST_DIR" ];
-    then
-        echo "Please make clean install by command without args:"
-        echo "update.sh"
-        exit 1
-    fi
-
-# -------------------UPDATE-----------------------------------------
-
-    # -------------------BACKUP-----------------------------------------
-    MYSQL_CREDENTIALS="-u$DB_USERNAME "
-    if [ ! -z $DB_PASSWORD ];
-    then
-        MYSQL_CREDENTIALS="$MYSQL_CREDENTIALS -p$DB_PASSWORD"
-    fi
-    mysqldump $MYSQL_CREDENTIALS $DB_NAME | gzip -c | cat>$BACKUP_DIR/quidcycle.sql.$DATE.tar.gz
-    tar czf "$BACKUP_DIR/quidcycle.web.$DATE.tar.gz" $VHOST_DIR
-    # -------------------BACKUP-----------------------------------------
-
-    cd $VHOST_DIR
-    git pull origin $GIT_BRANCH
-    git checkout -q $REV
-    php apps/public/console doctrine:migration:migrate
+    echo 'Clean cache'
     php apps/public/console cache:clear --env=prod
     php apps/admin/console cache:clear --env=prod
-    php apps/public/console assets:install --symlink web
+    #rm -rf apps/public/cache/* apps/public/logs/* apps/admin/cache/* apps/admin/logs/*
+    chmod 777 apps/public/cache apps/public/logs apps/admin/cache apps/admin/logs
+    ln -s ../public/bootstrap.php.cache apps/admin/
+    # -------------- PASTE FIRST RUN COMMANDS---------------------------
+
+
+    # -------------- PASTE FIRST RUN COMMANDS---------------------------
+    echo 'After configure launch'
+    echo 'update.sh <git commit>'
+    exit 0;
+# ----------------- FOR FIRST RUN -----------------------------
+fi
+
+if [ ! -d "$REPO_DIR" ];
+then
+    echo "Please make clean install by command without args:"
+    echo "update.sh"
+    exit 1
+fi
 
 # -------------------UPDATE-----------------------------------------
+echo 'Create timestamped vhost directory'
+mkdir -p $VHOST_TMP
+cd $REPO_DIR
+git pull origin $GIT_BRANCH
+git checkout $GIT_BRANCH
+echo 'Copy cuurent state repo dir to timestamped vhost directory'
+cp -r $REPO_DIR/* $VHOST_TMP
 
+# -------------------BACKUP-----------------------------------------
+echo 'Backup start'
+cd $CD
+MYSQL_CREDENTIALS="-u$DB_USERNAME "
+if [ ! -z $DB_PASSWORD ];
+then
+    MYSQL_CREDENTIALS="$MYSQL_CREDENTIALS -p$DB_PASSWORD"
 fi
+echo 'Backuping preupdate database...'
+mysqldump $MYSQL_CREDENTIALS --host=$DB_HOST $DB_NAME | gzip -c | cat>$BACKUP_DIR/quidcycle.sql.preupdate.$DATE.tar.gz
+if [ -d $VHOST_DIR ];
+then
+    echo 'Backuping current vhost...'
+    tar czf "$BACKUP_DIR/quidcycle.web.$DATE.tar.gz" $LOCAL_VHOST_DIR/*
+    if [ -d $FAST_BACKUP_DIR ];
+    then
+        rm -rf $FAST_BACKUP_DIR
+    fi
+    TARGET=`ls -l $VHOST_DIR | awk '{print $11}'`
+    rm $VHOST_DIR
+fi
+# -------------------BACKUP-----------------------------------------
+
+ln -s $VHOST_TMP $VHOST_DIR
+cd $VHOST_DIR
+echo 'Clean cache'
+rm -rf apps/public/cache/* apps/admin/cache/*
+chmod 777 apps/public/cache apps/public/logs apps/admin/cache apps/admin/logs
+echo 'Applying changes'
+php apps/public/console assets:install --symlink web
+echo 'Backuping postupdate database...'
+mysqldump $MYSQL_CREDENTIALS --host=$DB_HOST $DB_NAME | gzip -c | cat>$BACKUP_DIR/quidcycle.sql.postupdate.$DATE.tar.gz
+if [ ! -z $TARGET ];
+then
+    echo 'Create fast backup'
+    mv $TARGET $FAST_BACKUP_DIR
+fi
+
+# -------------------UPDATE-----------------------------------------
