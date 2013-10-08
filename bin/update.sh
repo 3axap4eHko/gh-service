@@ -9,7 +9,7 @@ DATE=$(date +%d-%m-%Y_%H-%M-%S)
 FAST_BACKUP_DIR="$CD/last-vhost-backup"
 BACKUP_DIR="$CD/backups"
 LOCAL_VHOST_DIR="vhost"
-VHOST_DIR="$CD/LOCAL_VHOST_DIR"
+VHOST_DIR="$CD/$LOCAL_VHOST_DIR"
 REPO_DIR="$CD/repo"
 VHOST_TMP="$CD/vhost-$DATE"
 # -------------------VARIABLES-----------------------------------------
