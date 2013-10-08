@@ -72,7 +72,6 @@ then
     echo 'Clean cache'
     php apps/public/console cache:clear --env=prod
     php apps/admin/console cache:clear --env=prod
-    #rm -rf apps/public/cache/* apps/public/logs/* apps/admin/cache/* apps/admin/logs/*
     chmod 777 apps/public/cache apps/public/logs apps/admin/cache apps/admin/logs
     ln -s ../public/bootstrap.php.cache apps/admin/
     # -------------- PASTE FIRST RUN COMMANDS---------------------------
@@ -96,7 +95,7 @@ fi
 echo 'Create timestamped vhost directory'
 mkdir -p $VHOST_TMP
 cd $REPO_DIR
-git pull origin $GIT_BRANCH
+git pull
 git checkout $GIT_BRANCH
 echo 'Copy cuurent state repo dir to timestamped vhost directory'
 cp -r $REPO_DIR/* $VHOST_TMP
